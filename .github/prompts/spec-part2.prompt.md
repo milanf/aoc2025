@@ -16,6 +16,9 @@ tools: ["changes","edit","fetch","githubRepo","problems","runCommands","runTasks
 - Výstup ukládej ve stejném formátu a vzoru pro pojmenování jako předchozí dny.
 
 # DÚLEŽITÉ:
+- NIKDY NEPŘEDPOKLÁDEJ ROZSAH VSTUPU JEN NA ZÁKLADĚ VZOROVÉHO PŘÍKLADU. VŽDY SI ZKONTROLUJ VSTUP V SOUBORU day`${input:DayNumber}`.txt A URČI ROZSAH A LIMITY VSTUPNÍCH HODNOT!
+- NIKDY JEN NA ZÁKLADĚ VZOROVÉHO PŘÍKLADU NEURČUJ ČASOVOU A PROSTOROVOU SLOŽITOST. VŽDY PROVEĎ ANALÝZU NA ZÁKLADĚ SKUTEČNÉHO VSTUPU!
+- BRUTE FORCE ŘEŠENÍ JSOU VŽDY AŽ POSLEDNÍ MOŽNOST, REÁLNÁ DATA V ZADÁNÍ TÉMĚŘ VŽDY VYŽADUJÍ EFEKTIVNÍ ALGORITMY!
 - Vždy měj na paměti, že Advent of Code je soutěž zaměřená na algoritmy. Málokdy funguje bruteforce řešení, je třeba přijít na efektivní algoritmus.
 - Mezi důležité algomitmy patří např. prohledávání grafů, dynamické programování, greedy algoritmy; DFS (Depth-First Search) a BFS (Breadth-First Search) – pro procházení grafů, mřížek, labyrintů; Dijkstra / A* – pro hledání nejkratší cesty s váhami; Flood fill – pro označování oblastí v matici; apod.
 - algoritmy si můžeš vyhledat a prostudovat, pokud si nejsi jistý, který použít.
