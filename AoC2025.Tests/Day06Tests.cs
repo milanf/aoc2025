@@ -1,14 +1,17 @@
 using AoC2025.Solutions;
+using Xunit.Abstractions;
 
 namespace AoC2025.Tests;
 
 public class Day06Tests
 {
     private readonly Day06 _solution;
+    private readonly ITestOutputHelper _output;
 
-    public Day06Tests()
+    public Day06Tests(ITestOutputHelper output)
     {
         _solution = new Day06();
+        _output = output;
     }
 
     [Fact]
@@ -79,5 +82,31 @@ public class Day06Tests
         // 9999^4 = 9,996,000,599,960,001
         Assert.Equal("9996000599960001", result);
     }
-    
+
+    [Fact]
+    public void Part2_WithExampleInput_Returns2043()
+    {
+        // Arrange
+        var input = File.ReadAllText("TestData/day06_example.txt");
+
+        // Act
+        var result = _solution.SolvePart2(input);
+
+        // Assert
+        Assert.Equal("2043", result);
+    }
+
+    [Fact]
+    public void Part2_WithRealInput_ReturnsCorrectAnswer()
+    {
+        // Arrange
+        var input = File.ReadAllText("TestData/day06.txt");
+
+        // Act
+        var result = _solution.SolvePart2(input);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.NotEqual("0", result);
+    }
 }
