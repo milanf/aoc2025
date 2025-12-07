@@ -15,7 +15,9 @@ public class Day07 : ISolution
 
     public string SolvePart2(string input)
     {
-        return "Not implemented yet";
+        var grid = ParseGrid(input);
+        long timelineCount = CountTimelines(grid);
+        return timelineCount.ToString();
     }
 
     private static char[][] ParseGrid(string input)
@@ -106,4 +108,68 @@ public class Day07 : ISolution
     }
 
     private record Beam(int Row, int Col);
+
+    private static long CountTimelines(char[][] grid)
+    {
+        var (startRow, startCol) = FindStart(grid);
+        
+        int height = grid.Length;
+        int width = grid[0].Length;
+        
+        // paths[r][c] = number of different paths leading to position (r, c)
+        var paths = new long[height][];
+        for (int i = 0; i < height; i++)
+            paths[i] = new long[width];
+        
+        // Start with one path at S
+        paths[startRow][startCol] = 1;
+        
+        // Counter for timelines that exit the grid
+        long totalTimelines = 0;
+        
+        // Process row by row (top-down)
+        for (int r = 0; r < height; r++)
+        {
+            for (int c = 0; c < width; c++)
+            {
+                long currentPaths = paths[r][c];
+                if (currentPaths == 0)
+                    continue;
+                
+                // Move down
+                int nextRow = r + 1;
+                
+                if (nextRow >= height)
+                {
+                    // Particle exited bottom of grid → timeline ends
+                    totalTimelines += currentPaths;
+                    continue;
+                }
+                
+                char nextCell = grid[nextRow][c];
+                
+                if (nextCell == '^')
+                {
+                    // SPLITTER! Split into left and right paths
+                    
+                    int leftCol = c - 1;
+                    if (leftCol >= 0)
+                        paths[nextRow][leftCol] += currentPaths;
+                    // If leftCol < 0, path exits left (doesn't count as timeline)
+                    
+                    int rightCol = c + 1;
+                    if (rightCol < width)
+                        paths[nextRow][rightCol] += currentPaths;
+                    // If rightCol >= width, path exits right (doesn't count as timeline)
+                }
+                else if (nextCell == '.' || nextCell == 'S')
+                {
+                    // Empty space or start position - continue down
+                    paths[nextRow][c] += currentPaths;
+                }
+            }
+        }
+        
+        return totalTimelines;
+    }
 }

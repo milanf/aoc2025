@@ -106,4 +106,92 @@ public class Day07Tests
         // Assert - 1 split, left beam goes out, right beam continues
         Assert.Equal("1", result);
     }
+
+    [Fact]
+    public void Part2_WithExampleInput_Returns40()
+    {
+        // Arrange
+        var input = @".......S.......
+...............
+.......^.......
+...............
+......^.^......
+...............
+.....^.^.^.....
+...............
+....^.^...^....
+...............
+...^.^...^.^...
+...............
+..^...^.....^..
+...............
+.^.^.^.^.^...^.
+...............";
+
+        // Act
+        var result = _solution.SolvePart2(input);
+        
+        // Output for debugging
+        _output.WriteLine($"Part2 Example Result: {result}");
+
+        // Assert
+        Assert.Equal("40", result);
+    }
+
+    [Fact]
+    public void Part2_SinglePath_NoSplitters_Returns1()
+    {
+        // Arrange
+        var input = @"S
+.
+.
+.";
+
+        // Act
+        var result = _solution.SolvePart2(input);
+        
+        // Output for debugging
+        _output.WriteLine($"Part2 Single Path Result: {result}");
+
+        // Assert - One timeline
+        Assert.Equal("1", result);
+    }
+
+    [Fact]
+    public void Part2_OneSplitter_Returns2()
+    {
+        // Arrange
+        var input = @".S.
+...
+.^.
+...";
+
+        // Act
+        var result = _solution.SolvePart2(input);
+        
+        // Output for debugging
+        _output.WriteLine($"Part2 One Splitter Result: {result}");
+
+        // Assert - Two timelines (left and right)
+        Assert.Equal("2", result);
+    }
+
+    [Fact]
+    public void Part2_WithRealInput_ReturnsNonZero()
+    {
+        // Arrange
+        var input = File.ReadAllText("TestData/day07_example.txt");
+
+        // Act
+        var result = _solution.SolvePart2(input);
+        
+        // Output for debugging
+        _output.WriteLine($"Part2 Real Input Result: {result}");
+
+        // Assert - Only verify it runs without error
+        Assert.NotNull(result);
+        Assert.NotEqual("0", result);
+        long.TryParse(result, out long numericResult);
+        Assert.True(numericResult > 0, "Result should be a positive number");
+    }
 }
