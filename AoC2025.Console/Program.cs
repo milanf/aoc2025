@@ -105,13 +105,17 @@ class Program
         try
         {
             System.Console.WriteLine("⏳ Spouštím Part 1...");
+            var sw1 = System.Diagnostics.Stopwatch.StartNew();
             var part1Result = solution.SolvePart1(input);
-            System.Console.WriteLine($"✅ Part 1: {part1Result}");
+            sw1.Stop();
+            System.Console.WriteLine($"✅ Part 1: {part1Result} ({sw1.ElapsedMilliseconds} ms)");
             System.Console.WriteLine();
 
             System.Console.WriteLine("⏳ Spouštím Part 2...");
+            var sw2 = System.Diagnostics.Stopwatch.StartNew();
             var part2Result = solution.SolvePart2(input);
-            System.Console.WriteLine($"✅ Part 2: {part2Result}");
+            sw2.Stop();
+            System.Console.WriteLine($"✅ Part 2: {part2Result} ({sw2.ElapsedMilliseconds} ms)");
         }
         catch (Exception ex)
         {
