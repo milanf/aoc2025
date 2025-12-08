@@ -1,7 +1,7 @@
 # Tech-Spec: Day 06 Part 1 - Trash Compactor
 
 **Created:** 2025-12-06  
-**Status:** Completed  
+**Status:** ✅ Completed  
 **AoC Link:** https://adventofcode.com/2025/day/6
 
 ---

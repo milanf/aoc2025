@@ -1,7 +1,7 @@
 # Tech-Spec: Day 07 Part 1 - Laboratories
 
 **Created:** 2025-12-07  
-**Status:** Completed  
+**Status:** ✅ Completed  
 **AoC Link:** https://adventofcode.com/2025/day/7
 
 ---

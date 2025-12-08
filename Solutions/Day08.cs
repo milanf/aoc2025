@@ -31,7 +31,47 @@ public class Day08 : ISolution
 
     public string SolvePart2(string input)
     {
-        throw new NotImplementedException("Part 2 not yet implemented");
+        // Parse junction boxes
+        var boxes = ParseJunctionBoxes(input);
+        int n = boxes.Length;
+        
+        // Build and sort edges by distance
+        var edges = BuildAndSortEdges(boxes);
+        
+        // Kruskal's algorithm - connect until we have ONE circuit (n-1 edges)
+        var unionFind = new UnionFind(n);
+        Edge? lastAddedEdge = null;
+        int edgesAdded = 0;
+        int requiredEdges = n - 1; // For n vertices, need n-1 edges for spanning tree
+        
+        foreach (var edge in edges)
+        {
+            // Try to connect two junction boxes
+            if (unionFind.Union(edge.Box1, edge.Box2))
+            {
+                // Connection successful (weren't in same circuit)
+                lastAddedEdge = edge;
+                edgesAdded++;
+                
+                // Have complete MST?
+                if (edgesAdded == requiredEdges)
+                {
+                    break;
+                }
+            }
+            // If Union returned false, they're already in same circuit → skip
+        }
+        
+        // Calculate result: X₁ × X₂ of last connected pair
+        if (lastAddedEdge == null)
+            throw new InvalidOperationException("Failed to find last edge!");
+        
+        var box1 = boxes[lastAddedEdge.Box1];
+        var box2 = boxes[lastAddedEdge.Box2];
+        
+        long result = (long)box1.X * box2.X;
+        
+        return result.ToString();
     }
 
     private JunctionBox[] ParseJunctionBoxes(string input)

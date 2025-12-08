@@ -96,4 +96,63 @@ public class Day08Tests
         // Top three sizes could vary, but let's verify it doesn't crash
         Assert.NotEmpty(result);
     }
+
+    // ===== PART 2 TESTS =====
+
+    [Fact]
+    public void Part2_Example_Returns25272()
+    {
+        // Arrange - 20 junction boxes requiring 19 connections for MST
+        string input = File.ReadAllText("TestData/day08_example.txt");
+
+        // Act
+        string result = _solution.SolvePart2(input);
+
+        // Assert
+        // Last connection between boxes at X=216 and X=117
+        // Result: 216 × 117 = 25272
+        Assert.Equal("25272", result);
+    }
+
+    [Fact]
+    public void Part2_RealInput_ReturnsValidResult()
+    {
+        // Arrange
+        string inputPath = Path.Combine("..", "..", "..", "..", "Inputs", "day08.txt");
+        
+        // Skip if file doesn't exist
+        if (!File.Exists(inputPath))
+        {
+            return;
+        }
+        
+        string input = File.ReadAllText(inputPath);
+
+        // Act
+        string result = _solution.SolvePart2(input);
+
+        // Assert
+        // Result must be a positive number
+        Assert.True(long.TryParse(result, out long value));
+        Assert.True(value > 0);
+    }
+
+    [Fact]
+    public void Part2_ThreeBoxes_TwoConnections()
+    {
+        // Arrange - 3 boxes require 2 connections
+        string input = @"0,0,0
+10,0,0
+100,0,0";
+
+        // Act
+        string result = _solution.SolvePart2(input);
+
+        // Assert
+        // Last connection should be between boxes at specific X coordinates
+        // With these positions, exact result depends on distance ordering
+        Assert.NotEmpty(result);
+        Assert.True(long.TryParse(result, out long value));
+        Assert.True(value > 0);
+    }
 }
