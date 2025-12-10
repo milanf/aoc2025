@@ -122,10 +122,7 @@ public class Day09Tests
         
         // Additional validation - result should be a valid number
         Assert.True(long.TryParse(result, out long area));
-        Assert.True(area > 0, "Area should be positive for real input");
-        
-        // Log the result for manual verification
-        System.Console.WriteLine($"Day 09 Part 1 Result: {result}");
+        Assert.True(area > 0, "Area should be positive for real input");                
     }
 
     // ============= Part 2 Tests =============
@@ -218,10 +215,7 @@ public class Day09Tests
         // (additional constraint can only reduce valid rectangles)
         string part1Result = _solution.SolvePart1(input);
         long part1Area = long.Parse(part1Result);
-        Assert.True(area <= part1Area, "Part 2 area should not exceed Part 1 area");
-        
-        // Log the result for manual verification
-        System.Console.WriteLine($"Day 09 Part 2 Result: {result}");
+        Assert.True(area <= part1Area, "Part 2 area should not exceed Part 1 area");                
     }
 }
 

@@ -39,13 +39,7 @@ public class Day10 : ISolution
             try
             {
                 int minPresses = SolveJoltageMachine(machine);
-                totalPresses += minPresses;
-                
-                // Debug: první 3 stroje
-                if (machineIndex <= 3)
-                {
-                    System.Console.WriteLine($"Machine {machineIndex}: {minPresses} presses, target sum={machine.TargetJoltage.Sum()}, buttons={machine.Buttons.Count}, counters={machine.TargetJoltage.Length}");
-                }
+                totalPresses += minPresses;                                
             }
             catch (Exception ex)
             {
@@ -53,8 +47,7 @@ public class Day10 : ISolution
                 throw;
             }
         }
-        
-        System.Console.WriteLine($"Total: {totalPresses} for {machineIndex} machines");
+                
         return totalPresses.ToString();
     }
     
