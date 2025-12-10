@@ -1,8 +1,11 @@
+using Google.OrTools.LinearSolver;
+
 namespace AoC2025.Solutions;
 
 /// <summary>
 /// Day 10: Factory - Minimální počet stisknutí tlačítek pro inicializaci strojů.
-/// Řeší soustavu lineárních rovnic nad Galois Field GF(2) pomocí Gaussian elimination.
+/// Part 1: Řeší soustavu lineárních rovnic nad Galois Field GF(2) pomocí Gaussian elimination.
+/// Part 2: Řeší Integer Linear Programming (ILP) problém pro joltage countery.
 /// </summary>
 public class Day10 : ISolution
 {
@@ -26,8 +29,33 @@ public class Day10 : ISolution
     
     public string SolvePart2(string input)
     {
-        // Part 2 bude implementován později
-        return "Not implemented yet";
+        var machines = ParseInputPart2(input);
+        long totalPresses = 0;
+        int machineIndex = 0;
+        
+        foreach (var machine in machines)
+        {
+            machineIndex++;
+            try
+            {
+                int minPresses = SolveJoltageMachine(machine);
+                totalPresses += minPresses;
+                
+                // Debug: první 3 stroje
+                if (machineIndex <= 3)
+                {
+                    System.Console.WriteLine($"Machine {machineIndex}: {minPresses} presses, target sum={machine.TargetJoltage.Sum()}, buttons={machine.Buttons.Count}, counters={machine.TargetJoltage.Length}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"CHYBA na stroji {machineIndex}: {ex.Message}");
+                throw;
+            }
+        }
+        
+        System.Console.WriteLine($"Total: {totalPresses} for {machineIndex} machines");
+        return totalPresses.ToString();
     }
     
     /// <summary>
@@ -36,6 +64,15 @@ public class Day10 : ISolution
     private class Machine
     {
         public bool[] TargetLights { get; set; } = Array.Empty<bool>();
+        public List<int[]> Buttons { get; set; } = new();
+    }
+    
+    /// <summary>
+    /// Reprezentuje stroj pro Part 2 s joltage countery.
+    /// </summary>
+    private class MachineJoltage
+    {
+        public int[] TargetJoltage { get; set; } = Array.Empty<int>();
         public List<int[]> Buttons { get; set; } = new();
     }
     
@@ -360,5 +397,154 @@ public class Day10 : ISolution
         }
         
         return pressCount;
+    }
+    
+    /// <summary>
+    /// Parsuje vstup pro Part 2 - extrahuje joltage hodnoty místo světel.
+    /// Formát: [.##.] (3) (1,3) (2) {3,5,4,7}
+    /// Ignoruje diagram světel, čte pouze tlačítka a joltage cíle.
+    /// </summary>
+    private List<MachineJoltage> ParseInputPart2(string input)
+    {
+        var machines = new List<MachineJoltage>();
+        var lines = input.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        
+        foreach (var line in lines)
+        {
+            var trimmedLine = line.Trim();
+            if (string.IsNullOrWhiteSpace(trimmedLine)) continue;
+            
+            var machine = new MachineJoltage();
+            
+            // Rozdělíme na mezery (stejně jako Python: line.split(" "))
+            var parts = trimmedLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            
+            if (parts.Length < 3) continue; // Musíme mít alespoň: [diagram] (button) {joltage}
+            
+            // První část je diagram světel [.##.] - ignorujeme
+            // Poslední část je joltage {3,5,4,7}
+            // Prostřední části jsou tlačítka (0,1) (2,3) ...
+            
+            // Parse joltage z poslední části
+            string joltPart = parts[^1]; // Poslední element
+            if (joltPart.StartsWith("{") && joltPart.EndsWith("}"))
+            {
+                string joltageContent = joltPart.Substring(1, joltPart.Length - 2);
+                machine.TargetJoltage = joltageContent.Split(',')
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Select(int.Parse)
+                    .ToArray();
+            }
+            else
+            {
+                continue; // Není validní formát
+            }
+            
+            // Parse tlačítka ze všech částí mezi první a poslední (parts[1] až parts[^2])
+            for (int i = 1; i < parts.Length - 1; i++)
+            {
+                string part = parts[i];
+                if (part.StartsWith("(") && part.EndsWith(")"))
+                {
+                    string buttonContent = part.Substring(1, part.Length - 2);
+                    if (!string.IsNullOrWhiteSpace(buttonContent))
+                    {
+                        var indices = buttonContent.Split(',')
+                            .Select(s => s.Trim())
+                            .Where(s => !string.IsNullOrEmpty(s) && s.All(char.IsDigit))
+                            .Select(int.Parse)
+                            .ToArray();
+                        
+                        if (indices.Length > 0)
+                        {
+                            machine.Buttons.Add(indices);
+                        }
+                    }
+                }
+            }
+            
+            if (machine.TargetJoltage.Length > 0 && machine.Buttons.Count > 0)
+            {
+                machines.Add(machine);
+            }
+        }
+        
+        return machines;
+    }
+    
+    /// <summary>
+    /// Řeší joltage stroj pomocí ILP (Integer Linear Programming) s OR-Tools.
+    /// Minimalizuje součet stisknutí tlačítek s omezením, že každý counter dosáhne cílové hodnoty.
+    /// </summary>
+    private int SolveJoltageMachine(MachineJoltage machine)
+    {
+        int numButtons = machine.Buttons.Count;
+        int numCounters = machine.TargetJoltage.Length;
+        
+        // Vytvoř SCIP solver
+        Solver solver = Solver.CreateSolver("SCIP");
+        if (solver == null)
+        {
+            throw new Exception("SCIP solver nelze vytvořit!");
+        }
+        
+        // Nastavení parametrů solveru
+        solver.SetTimeLimit(10000); // 10 sekund timeout
+        
+        // Proměnné: x[i] = počet stisknutí tlačítka i
+        Variable[] x = new Variable[numButtons];
+        int maxTarget = machine.TargetJoltage.Max();
+        int sumTarget = machine.TargetJoltage.Sum();
+        
+        // Horní hranice: v nejhorším případě každý counter potřebuje vlastní tlačítko
+        // Což může být až sumTarget pro každé tlačítko
+        int upperBound = sumTarget * 3; // Zvětšil jsem na 3× kvůli jistotě
+        
+        for (int i = 0; i < numButtons; i++)
+        {
+            x[i] = solver.MakeIntVar(0, upperBound, $"button_{i}");
+        }
+        
+        // Omezení: pro každý counter c, Σ(x[i] * A[i,c]) = target[c]
+        // kde A[i,c] = 1 pokud tlačítko i ovlivňuje counter c, jinak 0
+        for (int c = 0; c < numCounters; c++)
+        {
+            Constraint constraint = solver.MakeConstraint(machine.TargetJoltage[c], machine.TargetJoltage[c]);
+            
+            for (int i = 0; i < numButtons; i++)
+            {
+                // Zjisti, zda tlačítko i ovlivňuje counter c
+                if (machine.Buttons[i].Contains(c))
+                {
+                    constraint.SetCoefficient(x[i], 1);
+                }
+            }
+        }
+        
+        // Cílová funkce: minimize Σx[i]
+        Objective objective = solver.Objective();
+        for (int i = 0; i < numButtons; i++)
+        {
+            objective.SetCoefficient(x[i], 1);
+        }
+        objective.SetMinimization();
+        
+        // Řeš
+        Solver.ResultStatus status = solver.Solve();
+        
+        if (status != Solver.ResultStatus.OPTIMAL)
+        {
+            throw new Exception($"ILP solver nenašel OPTIMÁLNÍ řešení, stav: {status}");
+        }
+        
+        // Spočítej skutečnou sumu stisknutí (místo objective.Value())
+        int totalPresses = 0;
+        for (int i = 0; i < numButtons; i++)
+        {
+            totalPresses += (int)x[i].SolutionValue();
+        }
+        
+        return totalPresses;
     }
 }

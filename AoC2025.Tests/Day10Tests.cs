@@ -152,4 +152,112 @@ public class Day10Tests
         // Assert
         Assert.Equal("7", result); // Příklad z AoC: 2+3+2 = 7
     }
+    
+    // ==================== Part 2 Tests ====================
+    
+    [Fact]
+    public void Part2_Test1_Example_Machine1()
+    {
+        // Arrange
+        string input = "[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}";
+        
+        // Act
+        string result = _solution.SolvePart2(input);
+        
+        // Assert
+        Assert.Equal("10", result);
+    }
+
+    [Fact]
+    public void Part2_Test2_Example_Machine2()
+    {
+        // Arrange
+        string input = "[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}";
+        
+        // Act
+        string result = _solution.SolvePart2(input);
+        
+        // Assert
+        Assert.Equal("12", result);
+    }
+
+    [Fact]
+    public void Part2_Test3_Example_Machine3()
+    {
+        // Arrange
+        string input = "[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}";
+        
+        // Act
+        string result = _solution.SolvePart2(input);
+        
+        // Assert
+        Assert.Equal("11", result);
+    }
+
+    [Fact]
+    public void Part2_Test4_Example_AllThreeMachines()
+    {
+        // Arrange
+        string input = @"[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
+[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}";
+        
+        // Act
+        string result = _solution.SolvePart2(input);
+        
+        // Assert
+        Assert.Equal("33", result); // 10 + 12 + 11 = 33
+    }
+
+    [Fact]
+    public void Part2_Test5_TrivialMachine_AllZeros()
+    {
+        // Arrange
+        string input = "[....] (0,1,2,3) {0,0,0,0}";
+        
+        // Act
+        string result = _solution.SolvePart2(input);
+        
+        // Assert
+        Assert.Equal("0", result);
+    }
+
+    [Fact]
+    public void Part2_Test6_SimpleCounter()
+    {
+        // Arrange - jeden counter, jedno tlačítko
+        string input = "[#] (0) {5}";
+        
+        // Act
+        string result = _solution.SolvePart2(input);
+        
+        // Assert
+        Assert.Equal("5", result); // Stiskni tlačítko 5×
+    }
+
+    [Fact]
+    public void Part2_Test7_TwoCounters_SeparateButtons()
+    {
+        // Arrange
+        string input = "[##] (0) (1) {3,7}";
+        
+        // Act
+        string result = _solution.SolvePart2(input);
+        
+        // Assert
+        Assert.Equal("10", result); // (0) 3× + (1) 7× = 10
+    }
+
+    [Fact]
+    public void Part2_Test8_SharedButton()
+    {
+        // Arrange - jedno tlačítko ovlivňuje oba countery stejně
+        string input = "[##] (0,1) {5,5}";
+        
+        // Act
+        string result = _solution.SolvePart2(input);
+        
+        // Assert
+        Assert.Equal("5", result); // Stiskni (0,1) 5×
+    }
 }
