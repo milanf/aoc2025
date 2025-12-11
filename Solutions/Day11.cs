@@ -19,7 +19,101 @@ public class Day11 : ISolution
 
     public string SolvePart2(string input)
     {
-        return "Not implemented yet";
+        var graph = ParseGraph(input);
+        var pathCount = CountPathsWithRequiredNodes(graph, "svr", "out", "dac", "fft");
+        return pathCount.ToString();
+    }
+
+    /// <summary>
+    /// Count paths from start to target that visit BOTH required nodes (in any order).
+    /// Uses DFS with state tracking: (node, hasVisitedRequired1, hasVisitedRequired2).
+    /// Time complexity: O(V * E) with 4 possible states per node.
+    /// Space complexity: O(V * 4) for memoization cache.
+    /// </summary>
+    private long CountPathsWithRequiredNodes(
+        Dictionary<string, List<string>> graph,
+        string start,
+        string target,
+        string required1,
+        string required2)
+    {
+        // Validate all required nodes exist
+        if (!graph.ContainsKey(start) && start != target)
+            return 0;
+        
+        // Check if required nodes exist anywhere in the graph (as keys or values)
+        var allNodes = new HashSet<string>(graph.Keys);
+        foreach (var neighbors in graph.Values)
+        {
+            foreach (var neighbor in neighbors)
+            {
+                allNodes.Add(neighbor);
+            }
+        }
+        
+        if (!allNodes.Contains(required1) || !allNodes.Contains(required2) || !allNodes.Contains(target))
+            return 0;
+
+        var memo = new Dictionary<(string node, bool visited1, bool visited2), long>();
+        
+        // Check if start node is one of the required nodes
+        bool startIsRequired1 = start == required1;
+        bool startIsRequired2 = start == required2;
+        
+        return CountPathsWithRequiredNodesHelper(
+            graph, start, target, required1, required2,
+            startIsRequired1, startIsRequired2, memo);
+    }
+
+    /// <summary>
+    /// Recursive DFS helper with state tracking for visited required nodes.
+    /// Returns count of paths that visit BOTH required nodes before reaching target.
+    /// </summary>
+    private long CountPathsWithRequiredNodesHelper(
+        Dictionary<string, List<string>> graph,
+        string current,
+        string target,
+        string required1,
+        string required2,
+        bool hasVisitedRequired1,
+        bool hasVisitedRequired2,
+        Dictionary<(string, bool, bool), long> memo)
+    {
+        // Base case: reached target
+        if (current == target)
+        {
+            // Valid path only if visited BOTH required nodes
+            return (hasVisitedRequired1 && hasVisitedRequired2) ? 1 : 0;
+        }
+
+        // Check memo cache
+        var state = (current, hasVisitedRequired1, hasVisitedRequired2);
+        if (memo.ContainsKey(state))
+            return memo[state];
+
+        // Update visited status for current node
+        bool visitedRequired1 = hasVisitedRequired1 || (current == required1);
+        bool visitedRequired2 = hasVisitedRequired2 || (current == required2);
+
+        // If node has no outgoing edges, no path exists
+        if (!graph.ContainsKey(current))
+        {
+            memo[state] = 0;
+            return 0;
+        }
+
+        // Count paths through all neighbors
+        long totalPaths = 0;
+        foreach (var neighbor in graph[current])
+        {
+            totalPaths += CountPathsWithRequiredNodesHelper(
+                graph, neighbor, target, required1, required2,
+                visitedRequired1, visitedRequired2, memo);
+        }
+
+        // Cache the result
+        memo[state] = totalPaths;
+        return totalPaths;
     }
 
     /// <summary>
